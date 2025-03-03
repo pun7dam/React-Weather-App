@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search } from "./components/Search";
+import { Search } from "./components/search";
 import { CurrentWeather } from "./components/CurrentWeather";
 import { HourlyWeatherItem } from "./components/HourlyWeatherItem";
 import { weatherCodes } from "./constant";
