@@ -24,7 +24,7 @@ body {
 
 .container {
   max-width: 600px;
-  height: 600px;
+  height: 650px;
   background: #184A73;
   background: linear-gradient(135deg, #184A73, #0F3057);
   margin: 0 auto;
@@ -111,7 +111,7 @@ body {
 .weather-section .current-weather {
   display: flex;
   align-items: center;
-  padding: 20px 0 40px;
+  padding:4px 0 40px;
   /* Slightly adjusted padding for better alignment */
   flex-direction: column;
 }
@@ -125,6 +125,11 @@ body {
 .current-weather .temperature {
   margin: 18px 0;
   font-size: 3.38rem;
+}
+.current-weather .city {
+  margin: 18px 0;
+  font-size: 3.38rem;
+  color: white;
 }
 
 .current-weather .temperature span {
@@ -170,3 +175,56 @@ body {
   width: 28px;
   aspect-ratio: 1;
 }
+
+
+
+/* ----------------------------- */
+
+.hourly-forecast { 
+  padding: 20px;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+.weather-list {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+  list-style: none;
+  padding: 0;
+}
+
+
+.weather-item {
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.weather-icon {
+  max-width: 100%;
+  height: auto;
+}
+.current-weather .weather-icon {
+  width: 120px;
+  aspect-ratio: 1;
+  background-color: transparent;
+  /* Set background to transparent */
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  /* Adjust this value as needed */
+}
+.loader .loader-icon {
+  width: 8rem;
+  height: auto; 
+}
+

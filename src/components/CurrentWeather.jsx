@@ -1,16 +1,14 @@
 import React from "react";
 
 export const CurrentWeather = ({ currentWeather }) => {
-  const temperature = currentWeather.temperature
-    ? currentWeather.temperature + " °C"
-    : "Temperature";
-  const weatherIcon = currentWeather.weatherIcon
-    ? `./icons/${currentWeather.weatherIcon}.svg`
-    : `./vite.svg`;
   return (
     <div className="current-weather">
-      <img src={weatherIcon} className="weather-icon" />
-      <h2 className="temperature">{temperature}</h2>
+      <h1 className="city">{currentWeather.city}</h1>
+      <img
+        src={`./icons/${currentWeather.weatherIcon}.svg`}
+        className="weather-icon"
+      />
+      <h2 className="temperature">{currentWeather.temperature}</h2>
       <p className="description">{currentWeather.description}</p>
     </div>
   );

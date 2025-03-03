@@ -1,27 +1,38 @@
-export const SearchSection = ({ getWeatherDetails }) => {
+import { useRef } from "react";
+
+export const Search = ({ getWeatherDetails, cityName, setCityName }) => {
   const API_KEY = import.meta.env.VITE_API_KEY;
+  const citySearchRef = useRef(null);
+
   const handleCitySearch = (e) => {
     e.preventDefault();
-    const searchInput = e.target.querySelector(".search-input");
-    console.log(API_KEY);
-
-    const API_URL = `http://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${searchInput.value}`;
-    console.log(API_URL);
+    const searchInputValue = citySearchRef.current.value;
+    const API_URL = `http://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${searchInputValue}&days=2`;
     getWeatherDetails(API_URL);
   };
+  const handleInputChange = (e) => {
+    setCityName(e.target.value);
+  };
+  const handleClear = () => {
+    setCityName("");
+  };
+
   return (
-    <div className="search-section" onSubmit={handleCitySearch}>
-      <form action="#" className="search-form">
-        <span className="material-symbols-rounded">search</span>
+    <div className="search-section">
+      <form className="search-form" onSubmit={handleCitySearch}>
+        <span className="material-symbols-rounded">Search</span>
         <input
           type="search"
           placeholder="Enter a city name"
+          value={cityName}
           required
           className="search-input"
+          ref={citySearchRef}
+          onChange={handleInputChange}
+          onInput={handleClear}
         />
       </form>
-      {/* Put a button here  */}
-      <button className="location-button">
+      <button className="location-button" onClick={handleCitySearch}>
         <span className="material-symbols-rounded">my_location</span>
       </button>
     </div>
