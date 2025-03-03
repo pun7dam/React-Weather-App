@@ -6,13 +6,18 @@ import { weatherCodes } from "./constant";
 import Loader from "./components/Loader";
 
 function App() {
+  const LOADER_TIME = 300;
+  const API_KEY = import.meta.env.VITE_API_KEY;
+
   const [location, setLocation] = useState("Sydney"); // Default location
   const [currentWeather, setCurrentWeather] = useState({});
   const [hourlyForecast, setHourlyForecast] = useState([]);
 
   const [cityName, setCityName] = useState("");
 
-  const API_KEY = import.meta.env.VITE_API_KEY;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     // Function to get the user's location
@@ -23,14 +28,20 @@ function App() {
             const userLocation = `${position.coords.latitude},${position.coords.longitude}`;
             setLocation(userLocation);
             fetchWeatherData(userLocation);
+            setErrorMessage("");
           },
           (error) => {
             console.error("Error getting user location:", error);
+            setErrorMessage(error.message);
             fetchWeatherData(location); // Use default location if unable to get user location
           }
         );
       } else {
         console.error("Geolocation is not supported by this browser.");
+        setErrorMessage(
+          "Geolocation is not supported by this browser.Message: ",
+          error.message
+        );
         fetchWeatherData(location); // Use default location if geolocation is not supported
       }
     };
@@ -38,9 +49,16 @@ function App() {
 
     const fetchWeatherData = async (location) => {
       try {
+        setLoading(true);
+        setError(false);
         const response = await fetch(
           `http://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}`
         );
+        if (!response.ok) {
+          throw new Error(
+            `Error ${response.status}: Failed to fetch weather data`
+          );
+        }
         const data = await response.json();
 
         const temperature = data.current.temp_c;
@@ -61,8 +79,20 @@ function App() {
           city,
         });
         filterHourlyForecast(data.forecast.forecastday[0].hour);
+
+        // show loader for seconds
+        setTimeout(() => {
+          setLoading(false);
+        }, LOADER_TIME);
+        setErrorMessage("");
       } catch (error) {
         console.error("Error fetching weather data:", error);
+        setErrorMessage(error.message);
+        setError(true);
+        // show loader for seconds
+        setTimeout(() => {
+          setLoading(false);
+        }, LOADER_TIME);
       }
     };
   }, []);
@@ -88,7 +118,7 @@ function App() {
       const weatherIcon = Object.keys(weatherCodes).find((icon) =>
         weatherCodes[icon].includes(data.current.condition.code)
       );
-      console.log(temperature, description, weatherIcon);
+
       setCurrentWeather({
         temperature,
         description,
@@ -104,6 +134,25 @@ function App() {
       console.log(error);
     }
   };
+  const renderWeatherContent = () => {
+    if (loading) return <Loader />; // Show loader first
+    if (error || !currentWeather.temperature)
+      return (
+        <p className="error-message">{errorMessage || "Error fetching data"}</p>
+      );
+    return <CurrentWeather currentWeather={currentWeather} />;
+  };
+
+  const renderHourlyForecast = () => {
+    if (loading) return null; // Don't show anything while loading
+    if (error || hourlyForecast.length === 0)
+      return <p className="error-message">No hourly forecast available</p>;
+
+    return hourlyForecast.map((objHour) => (
+      <HourlyWeatherItem key={objHour.time_epoch} objHour={objHour} />
+    ));
+  };
+
   return (
     <div className="container">
       {/* This is a search section */}
@@ -112,23 +161,13 @@ function App() {
         cityName={cityName}
         setCityName={setCityName}
       />
-
+      {/* This is a current weather section */}
       <div className="weather-section">
-        {/* This is a current weather section */}
-        {currentWeather.city != null ? (
-          <CurrentWeather currentWeather={currentWeather} />
-        ) : (
-          <Loader />
-        )}
+        {renderWeatherContent()}
 
         {/* This is a hourly forecast */}
         <div className="hourly-forecast">
-          <ul className="weather-list">
-            {hourlyForecast.length > 0 &&
-              hourlyForecast.map((objHour) => (
-                <HourlyWeatherItem key={objHour.time_epoch} objHour={objHour} />
-              ))}
-          </ul>
+          <ul className="weather-list">{renderHourlyForecast()}</ul>
         </div>
       </div>
     </div>
