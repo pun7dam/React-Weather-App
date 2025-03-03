@@ -52,16 +52,15 @@ function App() {
         setLoading(true);
         setError(false);
         const response = await fetch(
-          `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}`
+          `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}&days=2`
         );
         if (!response.ok) {
-          console.log("!response.ok");
           throw new Error(
             `Error ${response.status}: Failed to fetch weather data`
           );
         }
         const data = await response.json();
-        console.log(data);
+
         const temperature = data.current.temp_c;
         const description = data.current.condition.text;
         const city = data.location.tz_id;
@@ -79,15 +78,19 @@ function App() {
           weatherIcon,
           city,
         });
-        filterHourlyForecast(data.forecast.forecastday[0].hour);
-        console.log(currentWeather);
+
+        const combineHourData = [
+          ...data.forecast.forecastday[0].hour,
+          ...data.forecast.forecastday[1].hour,
+        ];
+        filterHourlyForecast(combineHourData);
+
         // show loader for seconds
         setTimeout(() => {
           setLoading(false);
         }, LOADER_TIME);
         setErrorMessage("");
       } catch (error) {
-        console.log("EEEERRRR: ", error);
         console.error("Error fetching weather data:", error);
         setErrorMessage(error.message);
         setError(true);
@@ -99,18 +102,20 @@ function App() {
     };
   }, []);
 
-  const filterHourlyForecast = (hourlyData) => {
+  const filterHourlyForecast = (dataHourly) => {
     const currentHour = new Date().setMinutes(0, 0, 0);
     const next24Hour = currentHour + 24 * 60 * 60 * 1000;
-    const next24HoursData = hourlyData.filter(({ time }) => {
+    const next24HoursData = dataHourly.filter(({ time }) => {
       const foreCastTime = new Date(time).getTime();
       return foreCastTime >= currentHour && foreCastTime <= next24Hour;
     });
+
     setHourlyForecast(next24HoursData);
   };
 
   const getWeatherDetails = async (API_URL) => {
     try {
+      setLoading(true);
       const response = await fetch(API_URL);
       const data = await response.json();
 
@@ -132,10 +137,16 @@ function App() {
         ...data.forecast.forecastday[1].hour,
       ];
       filterHourlyForecast(combineHourData);
+
+      setTimeout(() => {
+        setLoading(false); // Stop the loader
+      }, LOADER_TIME);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
+
   const renderWeatherContent = () => {
     if (loading) return <Loader />; // Show loader first
     if (error || !currentWeather.temperature)
