@@ -55,12 +55,13 @@ function App() {
           `http://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}`
         );
         if (!response.ok) {
+          console.log("!response.ok");
           throw new Error(
             `Error ${response.status}: Failed to fetch weather data`
           );
         }
         const data = await response.json();
-
+        console.log(data);
         const temperature = data.current.temp_c;
         const description = data.current.condition.text;
         const city = data.location.tz_id;
@@ -79,13 +80,14 @@ function App() {
           city,
         });
         filterHourlyForecast(data.forecast.forecastday[0].hour);
-
+        console.log(currentWeather);
         // show loader for seconds
         setTimeout(() => {
           setLoading(false);
         }, LOADER_TIME);
         setErrorMessage("");
       } catch (error) {
+        console.log("EEEERRRR: ", error);
         console.error("Error fetching weather data:", error);
         setErrorMessage(error.message);
         setError(true);
