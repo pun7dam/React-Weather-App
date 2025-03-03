@@ -52,7 +52,7 @@ function App() {
         setLoading(true);
         setError(false);
         const response = await fetch(
-          `http://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}`
+          `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}`
         );
         if (!response.ok) {
           console.log("!response.ok");
